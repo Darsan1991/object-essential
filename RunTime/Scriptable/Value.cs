@@ -87,6 +87,7 @@ namespace DGames.ObjectEssentials.Scriptable
         
         public virtual void OnEnable()
         {
+            if (isTemp) return;
             Cached = false;
             _value = default;
         }
@@ -94,6 +95,7 @@ namespace DGames.ObjectEssentials.Scriptable
 
         public virtual void OnDisable()
         {
+            if (isTemp) return;
             Cached = false;
             _value = default;
         }
