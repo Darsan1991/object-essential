@@ -4,7 +4,10 @@ namespace DGames.ObjectEssentials.Scriptable
 {
     public abstract partial class ObjectScriptable : ScriptableObject,IObjectItem
     {
-        
+        public virtual void ResetOnBuild()
+        {
+            
+        }
     }
     
 #if DGAMES_SERVICES
@@ -15,10 +18,7 @@ namespace DGames.ObjectEssentials.Scriptable
         public bool RegisterGlobally => registerGlobally;
 
 
-        public virtual void ResetOnBuild()
-        {
-            
-        }
+      
     }
     
 #endif
