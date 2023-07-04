@@ -31,10 +31,18 @@ namespace DGames.ObjectEssentials.Scriptable
         }
         
         [ContextMenu(nameof(PrintValue))]
-        public void PrintValue()
+        protected void PrintValue()
         {
             Debug.Log(GetValue());
         }
+        
+        [ContextMenu(nameof(ClearValue))]
+        protected virtual void ClearValueContext()
+        {
+           ClearValue();
+        }
+
+        protected abstract void ClearValue();
     }
 
     public class Value<T> : Value, IValue<T>
@@ -107,8 +115,7 @@ namespace DGames.ObjectEssentials.Scriptable
             Cached = false;
         }
 
-        [ContextMenu(nameof(ClearValue))]
-        private void ClearValue()
+        protected override void ClearValue()
         {
             if (isTemp)
             {
@@ -118,6 +125,7 @@ namespace DGames.ObjectEssentials.Scriptable
 
             _value = default;
             PrefManager.Delete(id);
+            Debug.Log($"{name} Cleared!");
         }
 
         // ReSharper disable once HollowTypeName
