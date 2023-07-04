@@ -14,6 +14,11 @@ namespace DGames.ObjectEssentials.Scriptable
         [SerializeField] protected bool registerGlobally;
         public bool RegisterGlobally => registerGlobally;
 
+
+        public virtual void ResetOnBuild()
+        {
+            
+        }
     }
     
 #endif

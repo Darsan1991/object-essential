@@ -100,7 +100,14 @@ namespace DGames.ObjectEssentials.Scriptable
             _value = default;
         }
 
-    [ContextMenu(nameof(ClearValue))]
+        public override void ResetOnBuild()
+        {
+            base.ResetOnBuild();
+            _value = default;
+            Cached = false;
+        }
+
+        [ContextMenu(nameof(ClearValue))]
         private void ClearValue()
         {
             if (isTemp)
@@ -109,7 +116,7 @@ namespace DGames.ObjectEssentials.Scriptable
                 return;
             }
 
-            
+            _value = default;
             PrefManager.Delete(id);
         }
 
@@ -218,6 +225,8 @@ namespace DGames.ObjectEssentials.Scriptable
         public string key;
         public Value value;
     }
+    
+    
 
 
 }
