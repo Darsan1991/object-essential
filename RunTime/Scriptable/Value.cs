@@ -42,7 +42,7 @@ namespace DGames.ObjectEssentials.Scriptable
         private T _value;
 
         public Binder<T> Binder { get; } = new();
-        public T CurrentValue => _value.Equals(default) && !isTemp ? _value = PrefManager.Get(id, _value) : _value;
+        public T CurrentValue => _value.Equals(default) && !isTemp ? _value = PrefManager.Get(id, default) : _value;
 
         public static implicit operator T(Value<T> value) => value.CurrentValue;
 
