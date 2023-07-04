@@ -42,13 +42,28 @@ namespace DGames.ObjectEssentials.Scriptable
         private T _value;
 
         public Binder<T> Binder { get; } = new();
-        public T CurrentValue => _value.Equals(default) && !isTemp ? _value = PrefManager.Get(id, default) : _value;
+        public T CurrentValue
+        {
+            get
+            {
+                if (!isTemp && !Cached)
+                {
+                    Cached = true;
+                    return _value = PrefManager.Get<T>(id, default);
+                }
+
+                return _value;
+            }
+        }
+
+
+        public bool Cached { get; private set; }
 
         public static implicit operator T(Value<T> value) => value.CurrentValue;
 
         public override object GetValue() => Get();
 
-        public T Get() => this;
+        public T Get() => CurrentValue;
 
         public void Set(T value)
         {
@@ -69,18 +84,118 @@ namespace DGames.ObjectEssentials.Scriptable
             Binder.Raised(this);
         }
 
+        protected virtual void OnEnable()
+        {
+            Cached = false;
+        }
+
+        [ContextMenu(nameof(ClearValue))]
+        private void ClearValue()
+        {
+            if (isTemp)
+            {
+                Debug.Log("The Value is Temp");
+                return;
+            }
+
+            
+            PrefManager.Delete(id);
+        }
 
         // ReSharper disable once HollowTypeName
         public static class PrefManager
         {
-            public static T Get(string s, T def)
+            public static TJ Get<TJ>(string s, TJ def)
             {
-                return PlayerPrefs.HasKey(s) ? JsonUtility.FromJson<T>(PlayerPrefs.GetString(s)) : def;
+                if (IsBuildInType(typeof(T)))
+                    return GetBuildInValue(s, def);
+                
+                return PlayerPrefs.HasKey(s) ? JsonUtility.FromJson<TJ>(PlayerPrefs.GetString(s)) : def;
             }
 
-            public static void Set(string s, T value)
+            public static void Set<TJ>(string s, TJ value)
             {
+                if(IsBuildInType(typeof(T)))
+                {
+                    SetBuildInValue(s,value);
+                    return;
+                }
+
                 PlayerPrefs.SetString(s, JsonUtility.ToJson(value));
+            }
+
+            private static void SetBuildInValue<TJ>(string key, TJ value)
+            {
+                var type = typeof(TJ);
+                if (type == typeof(int))
+                {
+                    PlayerPrefs.SetInt(key, (int)(object)value);
+                }
+
+                if (type == typeof(string))
+                {
+                    PlayerPrefs.SetString(key, (string)(object)value);
+
+
+                }
+
+                if (type == typeof(float))
+                {
+                    PlayerPrefs.SetFloat(key, (float)(object)value);
+
+
+                }
+                
+
+                if (type == typeof(bool))
+                {
+                    PlayerPrefs.SetInt(key,(bool)(object)value?1:0);
+
+                }
+            }
+            
+            
+            private static TJ GetBuildInValue<TJ>(string key, TJ def)
+            {
+                var type = typeof(TJ);
+                if (type == typeof(int))
+                {
+                   return (TJ)(object)PlayerPrefs.GetInt(key, (int)(object)def);
+                }
+
+                if (type == typeof(string))
+                {
+                    return (TJ)(object)PlayerPrefs.GetString(key, (string)(object)def);
+
+
+                }
+
+                if (type == typeof(float))
+                {
+                    return (TJ)(object)PlayerPrefs.GetFloat(key, (float)(object)def);
+
+
+                }
+                
+
+                if (type == typeof(bool))
+                {
+                    return (TJ)(object)(PlayerPrefs.GetInt(key,(bool)(object)def?1:0) >0);
+
+                }
+
+                return def;
+            }
+
+            private static bool IsBuildInType(Type type)
+            {
+                return type == typeof(int) || type == typeof(string) || type == typeof(float) || type == typeof(bool);
+
+            }
+
+            public static void Delete(string s)
+            {
+                PlayerPrefs.DeleteKey(s);
             }
         }
     }
