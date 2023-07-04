@@ -9,28 +9,41 @@ using UnityEditor;
 namespace DGames.ObjectEssentials.Scriptable
 {
     [Serializable]
-    public struct ValueField<T>
+    public class ValueField<T>:ObjectItemField<IValue<T>>
     {
-        [SerializeField] private Type _type;
-        [SerializeField] private string _key;
-        [SerializeField] private Value<T> _value;
+        
+        public static implicit operator T(ValueField<T> field) => field.Item.Get();
 
-
-        public static implicit operator T(ValueField<T> field) => field.Value.Get();
-
-        public IValue<T> Value => _type switch
+        public override IValue<T> Item => type switch
         {
-            Type.Key => Values.Default.Get<T>(_key),
-            Type.Scriptable => _value,
+            Type.Key => Values.Default.Get<T>(key),
+            Type.Scriptable => item,
             _ => throw new ArgumentOutOfRangeException()
         };
 
 
-        public ValueField(string key)
+        public ValueField(string key) : base(key)
         {
-            _type = Type.Key;
-            _key = key;
-            _value = null;
+        }
+    }
+
+    [Serializable]
+    public abstract class ObjectItemField<T>
+    {
+        [SerializeField] protected Type type;
+        [SerializeField] protected string key;
+        [SerializeField] protected T item;
+
+
+
+        public abstract T Item { get; }
+
+
+        protected ObjectItemField(string key)
+        {
+            type = Type.Key;
+            this.key = key;
+            item = default;
         }
 
         public enum Type
@@ -46,8 +59,8 @@ namespace DGames.ObjectEssentials.Scriptable
 
 #if UNITY_EDITOR
 
-    [CustomPropertyDrawer(typeof(ValueField<>))]
-    public class ValueFieldPropertyDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(ObjectItemField<>),true)]
+    public class ObjectItemFieldPropertyDrawer : PropertyDrawer
     {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
@@ -59,9 +72,9 @@ namespace DGames.ObjectEssentials.Scriptable
         {
             EditorGUI.BeginProperty(position, label, property);
             EditorGUI.LabelField(position, label);
-            var typeProperty = property.FindPropertyRelative("_type");
-            var keyProperty = property.FindPropertyRelative("_key");
-            var valueProperty = property.FindPropertyRelative("_value");
+            var typeProperty = property.FindPropertyRelative("type");
+            var keyProperty = property.FindPropertyRelative("key");
+            var valueProperty = property.FindPropertyRelative("value");
 
             var leftWidth = position.width;
             position.position += Vector2.right * EditorGUIUtility.labelWidth;

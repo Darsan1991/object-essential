@@ -49,7 +49,7 @@ namespace DGames.ObjectEssentials.Scriptable.Utils
         public static Values Default => _default ??= Resources.Load<Values>($"{DEFAULT_FOLDER_PATH}/{nameof(Values)}");
         public const string DEFAULT_FOLDER_PATH = "ValueGroups";
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("MyGames/Values")]
+        [UnityEditor.MenuItem("MyGames/ObjectItem/Values")]
         public static void Open()
         {
             ScriptableEditorUtils.OpenOrCreateDefault<Values>(childrenPath: DEFAULT_FOLDER_PATH);
