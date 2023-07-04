@@ -9,7 +9,7 @@ using UnityEditor;
 namespace DGames.ObjectEssentials.Scriptable
 {
     [Serializable]
-    public class ValueField<T>:ObjectItemField<IValue<T>>
+    public class ValueField<T>:ObjectItemField<Value<T>,IValue<T>>
     {
         
         public static implicit operator T(ValueField<T> field) => field.Item.Get();
@@ -28,15 +28,15 @@ namespace DGames.ObjectEssentials.Scriptable
     }
 
     [Serializable]
-    public abstract class ObjectItemField<T>
+    public abstract class ObjectItemField<TItem,TInterface>
     {
         [SerializeField] protected Type type;
         [SerializeField] protected string key;
-        [SerializeField] protected T item;
+        [SerializeField] protected TItem item;
 
 
 
-        public abstract T Item { get; }
+        public abstract TInterface Item { get; }
 
 
         protected ObjectItemField(string key)
@@ -59,7 +59,7 @@ namespace DGames.ObjectEssentials.Scriptable
 
 #if UNITY_EDITOR
 
-    [CustomPropertyDrawer(typeof(ObjectItemField<>),true)]
+    [CustomPropertyDrawer(typeof(ObjectItemField<,>),true)]
     public class ObjectItemFieldPropertyDrawer : PropertyDrawer
     {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
