@@ -39,9 +39,10 @@ namespace DGames.ObjectEssentials.Scriptable
 
     public class Value<T> : Value, IValue<T>
     {
-        private T _value;
+        [NonSerialized]private T _value;
 
         public Binder<T> Binder { get; } = new();
+
         public T CurrentValue
         {
             get
@@ -57,7 +58,7 @@ namespace DGames.ObjectEssentials.Scriptable
         }
 
 
-        public bool Cached { get; private set; }
+        [field: NonSerialized]public bool Cached { get; private set; }
 
         public static implicit operator T(Value<T> value) => value.CurrentValue;
 
@@ -83,13 +84,21 @@ namespace DGames.ObjectEssentials.Scriptable
             base.OnChangedEvent();
             Binder.Raised(this);
         }
-
-        protected virtual void OnEnable()
+        
+        public virtual void OnEnable()
         {
             Cached = false;
+            _value = default;
+        }
+     
+
+        public virtual void OnDisable()
+        {
+            Cached = false;
+            _value = default;
         }
 
-        [ContextMenu(nameof(ClearValue))]
+    [ContextMenu(nameof(ClearValue))]
         private void ClearValue()
         {
             if (isTemp)
