@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,4 +76,13 @@ namespace DGames.ObjectEssentials.Scriptable.Utils
         public const string CHILDREN_FIELD = nameof(children);
         public const string KEY_VALUE_FIELD = nameof(items);
     }
+    
+    [Serializable]
+    public struct KeyAndValue
+    {
+        public string key;
+        public Value value;
+    }
+    
+    // public class ScriptableProvider
 }

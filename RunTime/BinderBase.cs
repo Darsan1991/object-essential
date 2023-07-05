@@ -7,7 +7,7 @@ namespace DGames.ObjectEssentials
     public class BinderBase
     {
 
-        protected readonly List<BindSettings> binds = new();
+        [NonSerialized]protected readonly List<BindSettings> binds = new();
         
         protected void Bind(object raised, object binding)
         {

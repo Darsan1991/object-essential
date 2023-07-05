@@ -1,5 +1,4 @@
 using System;
-
 using UnityEngine;
 
 namespace DGames.ObjectEssentials.Scriptable
@@ -29,17 +28,17 @@ namespace DGames.ObjectEssentials.Scriptable
             BaseBinder.Raised(GetValue());
             Changed?.Invoke(this);
         }
-        
+
         [ContextMenu(nameof(PrintValue))]
         protected void PrintValue()
         {
             Debug.Log(GetValue());
         }
-        
+
         [ContextMenu(nameof(ClearValue))]
         protected virtual void ClearValueContext()
         {
-           ClearValue();
+            ClearValue();
         }
 
         protected abstract void ClearValue();
@@ -47,7 +46,8 @@ namespace DGames.ObjectEssentials.Scriptable
 
     public class Value<T> : Value, IValue<T>
     {
-        [NonSerialized]private T _value;
+        [SerializeField] private T _initialValue;
+        [NonSerialized] private T _value;
 
         public Binder<T> Binder { get; } = new();
 
@@ -58,7 +58,7 @@ namespace DGames.ObjectEssentials.Scriptable
                 if (!isTemp && !Cached)
                 {
                     Cached = true;
-                    return _value = PrefManager.Get<T>(id, default);
+                    return _value = PrefManager.Get<T>(id, _initialValue);
                 }
 
                 return _value;
@@ -66,7 +66,7 @@ namespace DGames.ObjectEssentials.Scriptable
         }
 
 
-        [field: NonSerialized]public bool Cached { get; private set; }
+        [field: NonSerialized] public bool Cached { get; private set; }
 
         public static implicit operator T(Value<T> value) => value.CurrentValue;
 
@@ -92,26 +92,26 @@ namespace DGames.ObjectEssentials.Scriptable
             base.OnChangedEvent();
             Binder.Raised(this);
         }
-        
+
         public virtual void OnEnable()
         {
             if (isTemp) return;
             Cached = false;
-            _value = default;
+            _value = _initialValue;
         }
-     
+
 
         public virtual void OnDisable()
         {
             if (isTemp) return;
             Cached = false;
-            _value = default;
+            _value = _initialValue;
         }
 
         public override void ResetOnBuild()
         {
             base.ResetOnBuild();
-            _value = default;
+            _value = _initialValue;
             Cached = false;
         }
 
@@ -123,118 +123,14 @@ namespace DGames.ObjectEssentials.Scriptable
                 return;
             }
 
-            _value = default;
+            _value = _initialValue;
             PrefManager.Delete(id);
             Debug.Log($"{name} Cleared!");
         }
 
-        // ReSharper disable once HollowTypeName
-        public static class PrefManager
-        {
-            public static TJ Get<TJ>(string s, TJ def)
-            {
-                if (IsBuildInType(typeof(T)))
-                    return GetBuildInValue(s, def);
-                
-                return PlayerPrefs.HasKey(s) ? JsonUtility.FromJson<TJ>(PlayerPrefs.GetString(s)) : def;
-            }
-
-            public static void Set<TJ>(string s, TJ value)
-            {
-                if(IsBuildInType(typeof(T)))
-                {
-                    SetBuildInValue(s,value);
-                    return;
-                }
-
-                PlayerPrefs.SetString(s, JsonUtility.ToJson(value));
-            }
-
-            private static void SetBuildInValue<TJ>(string key, TJ value)
-            {
-                var type = typeof(TJ);
-                if (type == typeof(int))
-                {
-                    PlayerPrefs.SetInt(key, (int)(object)value);
-                }
-
-                if (type == typeof(string))
-                {
-                    PlayerPrefs.SetString(key, (string)(object)value);
-
-
-                }
-
-                if (type == typeof(float))
-                {
-                    PlayerPrefs.SetFloat(key, (float)(object)value);
-
-
-                }
-                
-
-                if (type == typeof(bool))
-                {
-                    PlayerPrefs.SetInt(key,(bool)(object)value?1:0);
-
-                }
-            }
-            
-            
-            private static TJ GetBuildInValue<TJ>(string key, TJ def)
-            {
-                var type = typeof(TJ);
-                if (type == typeof(int))
-                {
-                   return (TJ)(object)PlayerPrefs.GetInt(key, (int)(object)def);
-                }
-
-                if (type == typeof(string))
-                {
-                    return (TJ)(object)PlayerPrefs.GetString(key, (string)(object)def);
-
-
-                }
-
-                if (type == typeof(float))
-                {
-                    return (TJ)(object)PlayerPrefs.GetFloat(key, (float)(object)def);
-
-
-                }
-                
-
-                if (type == typeof(bool))
-                {
-                    return (TJ)(object)(PlayerPrefs.GetInt(key,(bool)(object)def?1:0) >0);
-
-                }
-
-                return def;
-            }
-
-            private static bool IsBuildInType(Type type)
-            {
-                return type == typeof(int) || type == typeof(string) || type == typeof(float) || type == typeof(bool);
-
-            }
-
-            public static void Delete(string s)
-            {
-                PlayerPrefs.DeleteKey(s);
-            }
-        }
+       
     }
 
-
-    [Serializable]
-    public struct KeyAndValue
-    {
-        public string key;
-        public Value value;
-    }
-    
-    
-
-
+   
+    // ReSharper disable once HollowTypeName
 }
