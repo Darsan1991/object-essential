@@ -1,14 +1,17 @@
 using System;
+using DGames.Essentials.Attributes;
 using UnityEngine;
 
 namespace DGames.ObjectEssentials.Scriptable
 {
+    [HideScriptField]
+    
     public abstract class Value : ObjectScriptable, IValue
     {
         public event Action<IValue> Changed;
 
         [HideInInspector] [SerializeField] protected string id;
-        [SerializeField] protected bool isTemp;
+        [HorizontalLayout()][SerializeField] protected bool isTemp;
 
         public Binder<object> BaseBinder { get; } = new();
 
@@ -46,7 +49,8 @@ namespace DGames.ObjectEssentials.Scriptable
 
     public class Value<T> : Value, IValue<T>
     {
-        [SerializeField] private T _initialValue;
+
+        [HorizontalLayout()][SerializeField] protected T _initialValue;
         [NonSerialized] private T _value;
 
         public Binder<T> Binder { get; } = new();
@@ -58,7 +62,7 @@ namespace DGames.ObjectEssentials.Scriptable
                 if (!isTemp && !Cached)
                 {
                     Cached = true;
-                    return _value = PrefManager.Get<T>(id, _initialValue);
+                    return _value = PrefManager.Get(id, _initialValue);
                 }
 
                 return _value;

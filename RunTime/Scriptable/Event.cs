@@ -1,8 +1,11 @@
 using System;
+using DGames.Essentials.Attributes;
 using UnityEngine;
 
 namespace DGames.ObjectEssentials.Scriptable
 {
+    [DashboardMessage("This is used for Game event Purpose. You don't have to use this unless you are changing some game logic. You can create event here.",false)]
+    [DashboardType(tabPath:"System/Events")]
     [CreateAssetMenu(menuName = "Create Event", fileName = "Event", order = 0)]
     public class Event : ObjectScriptable, IEvent
     {

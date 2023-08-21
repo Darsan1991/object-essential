@@ -1,3 +1,4 @@
 {
-	"name": "com.dgames.objectessentials"
+	"name": "com.dgames.objectessentials",
+	"references":[ "GUID:4dbdc2d013e5f4fb09350d95d07baf27" ]
 }

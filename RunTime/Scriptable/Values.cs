@@ -2,15 +2,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DGames.Essentials.Attributes;
 using UnityEngine;
 
 namespace DGames.ObjectEssentials.Scriptable.Utils
 {
+    [DashboardResourceItem(tabPath:"System/Values",subFolderPath:DEFAULT_FOLDER_PATH,order:100,displayName:"Value Service")]
+    [TreeBasedResourceItem(Values.CHILDREN_FIELD)]
     [CreateAssetMenu(menuName = "Create Value Group", fileName = "Values", order = 0)]
     public partial class Values : ScriptableObject
     {
         [SerializeField] protected List<Values> children = new();
-        [SerializeField] protected List<KeyAndValue> items = new();
+        [Inline()][SerializeField] protected List<KeyAndValue> items = new();
 
         private readonly Dictionary<string, IValue> _keyVsValueCache = new();
 

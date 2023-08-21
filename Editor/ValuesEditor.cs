@@ -1,16 +1,21 @@
 
+using System;
+using System.Linq;
+using DGames.Essentials.Editor;
 using UnityEditor;
 using UnityEngine;
+using Editor = UnityEditor.Editor;
 
 namespace DGames.ObjectEssentials.Scriptable.Utils
 {
     [CustomEditor(typeof(Values))]
-    public class ValuesEditor : Editor
+    public partial class ValuesEditor : DGames.Essentials.Editor.Editor
     {
         private SerializedProperty _childrenField;
         private SerializedProperty _keyAndValuesField;
         private string _newChildName;
         private bool _childrenFold;
+        private GUIStyle _titleStyle;
 
         private void OnEnable()
         {
@@ -25,8 +30,13 @@ namespace DGames.ObjectEssentials.Scriptable.Utils
 
             EditorGUI.BeginChangeCheck();
 
-            _childrenFold = EditorGUILayout.Foldout(_childrenFold, "----------CHILDREN SECTION---------");
+            CacheIfNeeded();
+            EditorGUILayout.BeginHorizontal();
+            _childrenFold = EditorGUI.Foldout(EditorGUILayout.GetControlRect(GUILayout.MaxWidth(14)),_childrenFold, "");
+            EditorGUILayout.LabelField(GetTitleWithDashes("CHILDREN SECTION"),_titleStyle);
+            EditorGUILayout.EndHorizontal();
 
+            var notifiedChanged = false;
             if (_childrenFold)
             {
                 EditorGUI.indentLevel++;
@@ -49,6 +59,7 @@ namespace DGames.ObjectEssentials.Scriptable.Utils
                     AssetDatabase.SaveAssetIfDirty(target);
                     property.objectReferenceValue = values;
                     _newChildName = "";
+                    notifiedChanged = true;
                 }
 
                 EditorGUI.EndDisabledGroup();
@@ -64,7 +75,37 @@ namespace DGames.ObjectEssentials.Scriptable.Utils
 
             if (EditorGUI.EndChangeCheck())
                 serializedObject.ApplyModifiedProperties();
+
+
+            if (notifiedChanged)
+            {
+                notifiedChanged = false;
+                NotifyChanged?.Invoke(this);
+            }
         }
+        
+        private void CacheIfNeeded()
+        {
+            if (_titleStyle == null)
+            {
+                var style = EditorStyles.label;
+                _titleStyle = new GUIStyle(style) { alignment = TextAnchor.MiddleCenter };
+            }
+        }
+        
+        public static string GetTitleWithDashes(string title, int countPerSide = 70)
+        {
+            var dashes = string.Join("", Enumerable.Repeat("-", countPerSide));
+
+            return $"{dashes}{title}{dashes}";
+        }
+    }
+    
+    
+
+    public partial class ValuesEditor : IWindowContent
+    {
+        public event Action<Essentials.Editor.Editor> NotifyChanged;
     }
 }
 
