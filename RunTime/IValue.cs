@@ -3,29 +3,29 @@ using UnityEngine;
 
 namespace DGames.ObjectEssentials
 {
-
     public interface ICommand
     {
         void Execute();
     }
-    
+
     public interface ICommandItem<T> : ICommandItem
     {
-        public T Args => Equals(ArgsValue,default(T)) ? default : (T)ArgsValue;
-        public void Execute(T args) => Execute(Equals(args,default(T))? default:(object)args);
+        public T Args => Equals(ArgsValue, default(T)) ? default : (T)ArgsValue;
+        public void Execute(T args) => Execute(Equals(args, default(T)) ? default : (object)args);
     }
 
-    public interface IQueryItem:IObjectItem,IQuery
+    public interface IQueryItem : IObjectItem, IQuery
     {
-        Func<object,object> Runner { get; set; }
+        Func<object, object> Runner { get; set; }
 
         object IQuery.Ask(object obj)
         {
             if (Runner == null)
             {
-                Debug.LogWarning("No Runner Found For:"+this);
+                Debug.LogWarning("No Runner Found For:" + this);
                 return default;
             }
+
             return Runner(obj);
         }
     }
@@ -39,7 +39,7 @@ namespace DGames.ObjectEssentials
             return Equals(result, default(T)) ? default : (T)result;
         }
     }
-    
+
     public interface IQueryItem<in T, out TJ> : IQueryItem
     {
         TJ Ask(T args)
@@ -48,13 +48,13 @@ namespace DGames.ObjectEssentials
             return Equals(result, default(TJ)) ? default : (TJ)result;
         }
     }
-    
+
     public interface IQuery
     {
         object Ask(object obj);
     }
 
-    public interface ICommandItem:IObjectItem,ICommand
+    public interface ICommandItem : IObjectItem, ICommand
     {
         public object ArgsValue { get; set; }
         public Action<ICommandItem> Action { get; set; }
@@ -70,26 +70,38 @@ namespace DGames.ObjectEssentials
             Execute();
         }
     }
-    
-    public interface IValue<T>:IValue,IBinderProvider<T>
+
+    public interface IValue<T> : IValue, IBinderProvider<T>, IBaseValue<T>
+
+    {
+    }
+
+
+    public interface IBaseValue<T>
     {
         T Get();
         void Set(T value);
     }
-
-    public interface IValue:IObjectItem,IBaseBinderProvider
+    
+    public interface IBaseValue  
     {
-        event Action<IValue> Changed;
-      
         object GetValue();
         void SetValue(object value);
     }
+    
+    
+
+    public interface IValue : IBaseValue, IObjectItem, IBaseBinderProvider
+    {
+        event Action<IValue> Changed;
+        
+    }
+
 
     public interface IObjectItem
     {
-        
     }
-    
+
     public interface IBaseBinderProvider
     {
         Binder<object> BaseBinder { get; }
